@@ -17,6 +17,8 @@ class Emittie {
 
     p(this).handlers = {};
 
+    p(this).nextQueue = {};
+
     p(this).createPromise = config.createPromise || ((cb) => (new Promise(cb)));
   }
 
@@ -24,19 +26,23 @@ class Emittie {
   /**
    *
    */
-  trigger(eventName, payload, config) {
+  trigger(eventName, error, payload, config) {
     config = config || {};
-    const handlers = p(this).handlers[eventName];
-    if (!handlers) {
-      if (config.strict === true) throw new Error(`Attempted to trigger event: ${eventName}. Event does not exist.`);
-      return;
-    }
 
+    const nextQueue = p(this).nextQueue[eventName] || [];
+    const handler = nextQueue.shift();
+    if (handler) invoke(handler);
+    if (!nextQueue.length) delete p(this).nextQueue[eventName];
+
+    const handlers = p(this).handlers[eventName] || [];
     handlers.forEach((meta, handler) => {
       if (++meta.invocationCount === config.removeAfter) this.off(eventName, handler);
-
-      handler(payload, Object.assign({eventName}, meta));
+      invoke(handler, meta);
     });
+
+    function invoke(handler, meta) {
+      return handler(error, payload, Object.assign({eventName}, meta || {}));
+    }
   }
 
 
@@ -73,10 +79,25 @@ class Emittie {
    *
    */
   once(eventName, config) {
-    return p(this).createPromise((resolve) => {
-      this.on(eventName, (payload, meta) => {
+    return p(this).createPromise((resolve, reject) => {
+      this.on(eventName, (error, payload, meta) => {
+        if (error) return reject(error);
         resolve(payload);
       }, Object.assign(config || {}, {removeAfter: 1}));
+    });
+  }
+
+
+  /**
+   *
+   */
+  next(eventName, config) {
+    return p(this).createPromise((resolve, reject) => {
+      const nextQueue = p(this).nextQueue[eventName] = p(this).nextQueue[eventName] || [];
+      nextQueue.push((error, payload, meta) => {
+        if (error) return reject(error);
+        resolve(payload);
+      });
     });
   }
 }

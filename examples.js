@@ -4,8 +4,9 @@ const Emittie = require('./');
 const emittie = new Emittie();
 
 
-emittie.on('something', (payload, meta) => {
+emittie.on('something', (error, payload, meta) => {
   console.log('on something handler');
+  console.log('Is Error', !!error);
   console.log('Payload', payload);
   console.log('Meta', meta);
   console.log('\n\n');
@@ -19,5 +20,19 @@ emittie.once('something')
 });
 
 
-emittie.trigger('something', {name: 'Tomas'});
-emittie.trigger('something', {name: 'Matt'});
+emittie.next('something')
+.then(payload => {
+  console.log('First next', payload);
+  console.log('\n\n');
+});
+
+
+emittie.next('something')
+.then(payload => {
+  console.log('Second next', payload);
+  console.log('\n\n');
+});
+
+
+emittie.trigger('something', null, {name: 'Tomas'});
+emittie.trigger('something', null, {name: 'Matt'});
