@@ -8,12 +8,14 @@ emittie.on('something', (payload, meta) => {
   console.log('on something handler');
   console.log('Payload', payload);
   console.log('Meta', meta);
+  console.log('\n\n');
 });
 
 emittie.once('something')
 .then(payload => {
   console.log('once something .then');
   console.log('Payload', payload);
+  console.log('\n\n');
 });
 
 
