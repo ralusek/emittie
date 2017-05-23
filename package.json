@@ -1,6 +1,6 @@
 {
   "name": "emittie",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Emitter",
   "main": "index.js",
   "scripts": {
