@@ -1,10 +1,10 @@
 'use strict';
 
 // This establishes a private namespace.
-const queueNamespace = new WeakMap();
+const namespace = new WeakMap();
 function p(object) {
-  if (!queueNamespace.has(object)) queueNamespace.set(object, {});
-  return queueNamespace.get(object);
+  if (!namespace.has(object)) namespace.set(object, {});
+  return namespace.get(object);
 }
 
 
